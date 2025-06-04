@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rounded Rectangle → Equivalent Circle Diameter Calculator</title>
+
+  <!-- Simple CSS styles -->
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 0;
+    }
+    .container {
+      max-width: 480px;
+      margin: 2rem auto;
+      padding: 1.5rem;
+      background-color: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      font-size: 1.4rem;
+      margin: 1rem 0;
+      text-align: center;
+      color: #333;
+    }
+    .top-image {
+      display: block;
+      margin: 0 auto 1rem auto;
+      width: 100%;
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    label {
+      display: block;
+      margin-top: 1rem;
+      font-weight: 600;
+      color: #555;
+    }
+    input[type="number"] {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.25rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    button {
+      display: block;
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.6rem;
+      background-color: #1abc9c;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    button:hover {
+      background-color: #17a589;
+    }
+    #result, #error {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    #error {
+      color: #e74c3c;
+    }
+    /* MathJax section */
+    .math-container {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid #ddd;
+      color: #333;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    .math-container p {
+      margin: 0.8rem 0;
+    }
+  </style>
+
+  <!-- MathJax (for rendering formulas) -->
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+  <div class="container">
+
+
+    <!-- 2. Title -->
+    <h1>Rounded Rectangle → Equivalent Circle Diameter Calculator</h1>
+    
+    <!-- 1. Top image -->
+    <img
+      class="top-image"
+      src="https://emlizard.github.io/main-page/images/diagram_rect_to_cir.png"
+      alt="Rounded Rectangle and Equivalent Circle Diagram"
+    />
+    <!-- Input form -->
+    <label for="width">Width (W) [units: mm]</label>
+    <input type="number" id="width" placeholder="e.g., 50.0" step="any" />
+
+    <label for="height">Height (H) [units: mm]</label>
+    <input type="number" id="height" placeholder="e.g., 30.0" step="any" />
+
+    <label for="radius">Corner Radius (r) [units: mm]</label>
+    <input type="number" id="radius" placeholder="e.g., 5.0" step="any" />
+
+    <button id="btnCalc">Calculate</button>
+
+    <!-- Result and error message -->
+    <div id="error"></div>
+    <div id="result"></div>
+
+    <!-- MathJax formulas section -->
+    <div class="math-container">
+      <p>Formulas used:</p>
+      <p>
+        Straight-segment perimeter of the rounded rectangle:<br />
+        \[
+          L_{\text{straight}} \;=\; 2\bigl[(W - 2r) + (H - 2r)\bigr].
+        \]
+      </p>
+      <p>
+        Corner arcs (4 quarter-circles of radius \(r\)) → total arc length:<br />
+        \[
+          L_{\text{corner}}
+          \;=\; 4 \times \left(\tfrac{1}{4}\times 2\pi r\right)
+          \;=\; 2\pi r.
+        \]
+      </p>
+      <p>
+        Therefore, the total perimeter of the rounded rectangle:<br />
+        \[
+          P 
+          = L_{\text{straight}} + L_{\text{corner}}
+          \;=\; 2\bigl[(W - 2r) + (H - 2r)\bigr] \;+\; 2\pi r.
+        \]
+      </p>
+      <p>
+        Diameter of the circle with the same perimeter:<br />
+        \[
+          D_{\text{circle}}
+          \;=\; \frac{P}{\pi}.
+        \]
+      </p>
+    </div>
+  </div>
+
+  <!-- JavaScript calculation logic -->
+  <script>
+    function calculateCircleDiameterFromRoundedRect(W, H, r) {
+      // Input validation
+      if (r * 2 > W || r * 2 > H) {
+        throw new Error("Corner radius r must be no more than half of Width W and Height H.");
+      }
+      // Straight-segment length
+      const straightLength = 2 * ((W - 2 * r) + (H - 2 * r));
+      // Total corner arc length
+      const cornerArcLength = 2 * Math.PI * r;
+      // Total perimeter
+      const perimeter = straightLength + cornerArcLength;
+      // Equivalent circle diameter = perimeter / π
+      return perimeter / Math.PI;
+    }
+
+    document.getElementById("btnCalc").addEventListener("click", function () {
+      const errorEl = document.getElementById("error");
+      const resultEl = document.getElementById("result");
+      errorEl.textContent = "";
+      resultEl.textContent = "";
+
+      // Parse input values
+      const W = parseFloat(document.getElementById("width").value);
+      const H = parseFloat(document.getElementById("height").value);
+      const r = parseFloat(document.getElementById("radius").value);
+
+      // Check for missing inputs
+      if (isNaN(W) || isNaN(H) || isNaN(r)) {
+        errorEl.textContent = "Please enter valid numbers for all fields.";
+        return;
+      }
+
+      try {
+        const diameter = calculateCircleDiameterFromRoundedRect(W, H, r);
+        resultEl.textContent = `Equivalent circle diameter: ${diameter.toFixed(2)} mm`;
+      } catch (err) {
+        errorEl.textContent = err.message;
+      }
+    });
+  </script>
+</body>
+</html>
